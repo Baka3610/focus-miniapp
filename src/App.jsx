@@ -294,18 +294,6 @@ const styles = {
     color: 'rgba(255,255,255,0.58)',
     marginBottom: '14px',
   },
-  primaryButton: {
-    width: '100%',
-    borderRadius: '20px',
-    border: 'none',
-    background: 'linear-gradient(135deg, #ffffff 0%, #dbe2ff 100%)',
-    color: '#0f1320',
-    padding: '15px 16px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: 800,
-    marginBottom: '10px',
-  },
   secondaryButton: {
     width: '100%',
     borderRadius: '18px',
@@ -316,6 +304,18 @@ const styles = {
     cursor: 'pointer',
     fontSize: '14px',
     fontWeight: 700,
+    marginBottom: '10px',
+  },
+  primaryButton: {
+    width: '100%',
+    borderRadius: '20px',
+    border: 'none',
+    background: 'linear-gradient(135deg, #ffffff 0%, #dbe2ff 100%)',
+    color: '#0f1320',
+    padding: '15px 16px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 800,
   },
 };
 
@@ -347,34 +347,20 @@ export default function App() {
 
     if (step < QUESTIONS.length - 1) {
       setStep(step + 1);
-    } else {
-      const finalType = getTopType(nextAnswers);
-      const tg = window.Telegram?.WebApp;
-
-      if (tg) {
-        tg.MainButton.setText('Получить следующий шаг');
-        tg.MainButton.show();
-        tg.MainButton.onClick(() => {
-          tg.sendData(
-            JSON.stringify({
-              action: 'quiz_completed',
-              result: finalType,
-              answers: nextAnswers,
-            })
-          );
-          tg.close();
-        });
-      }
     }
   };
 
   const restart = () => {
     setStep(0);
     setAnswers([]);
+  };
 
+  const goBackToBot = () => {
     const tg = window.Telegram?.WebApp;
     if (tg) {
-      tg.MainButton.hide();
+      tg.close();
+    } else {
+      restart();
     }
   };
 
@@ -405,13 +391,19 @@ export default function App() {
 
             <div style={styles.footerText}>
               {isTelegram
-                ? 'Нажми кнопку внизу Telegram, чтобы передать результат и получить следующий шаг.'
-                : 'Открой тест из Telegram-бота, чтобы результат автоматически передался дальше.'}
+                ? 'Нажми кнопку ниже, чтобы закрыть тест и вернуться в бота.'
+                : 'Если ты открыл это вне Telegram, можно пройти тест заново.'}
             </div>
 
-            <button onClick={restart} style={styles.secondaryButton}>
-              Пройти тест заново
+            <button onClick={goBackToBot} style={styles.primaryButton}>
+              Вернуться в бота
             </button>
+
+            {!isTelegram && (
+              <button onClick={restart} style={styles.secondaryButton}>
+                Пройти тест заново
+              </button>
+            )}
           </div>
         </div>
       </div>
